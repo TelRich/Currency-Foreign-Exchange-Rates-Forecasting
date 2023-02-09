@@ -1,3 +1,4 @@
+# import models
 import pandas as pd
 import numpy as np
 import plotly.express as px
@@ -10,15 +11,26 @@ from pylab import rcParams
 rcParams['figure.figsize'] = 8, 8
 from prophet import Prophet
 
-
+# load data
 df = pd.read_csv('forex.csv', parse_dates=['date']).set_index('date')
 
+# function to view 113 unique currency 
+def view_cur():
+    uniq = df['currency'].unique()
+    return uniq
+
+# function to filter for a currency
 def select(cur: str):
     currency = df[df['currency'] == cur]
     uniq_xchng= currency['slug'].nunique()
     print(f'The number of unique exchange (slug) is {uniq_xchng}')
     return currency
 
+"""
+funtion to create a dataframe of each exchange in the slug colum for a selected currency.
+it also plot the ohlc of each exchange if ohlc is set to true
+
+"""
 df_map = []
 def slug_df_lst(cur_df, ohlc=False):
     uniq_xchng = cur_df['slug'].unique()
