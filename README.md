@@ -3,3 +3,6 @@
 ---
 
 <center><h1>Currency Foreign Exchange Rates</h1></center>
+
+### [Click to view Data Visualization](https://nbviewer.org/github/TelRich/Currency-Foreign-Exchange-Rates/blob/main/data_viz.ipynb)
+### [Click to view Project](https://nbviewer.org/github/TelRich/Currency-Foreign-Exchange-Rates/blob/main/xchng_clean.ipynb)
