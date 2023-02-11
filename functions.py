@@ -28,8 +28,13 @@ def select(cur: str):
 
 """
 funtion to create a dataframe of each exchange in the slug colum for a selected currency.
-it also plot the ohlc of each exchange if ohlc is set to true
+it also plot the ohlc of each exchange if ohlc is set to true.
 
+example: if you selected EUR as the currency. EUR has 6 xchange INR/EUR, AUD/EUR,
+JPY/EUR, CHF/EUR, USD/EUR, and GBP/EUR. The below function will filter for each of
+this xchange and return a dataframe for each xchange, all in a list. 
+So list[0] = INR/EUR > dataframe 
+If ohlc is set to True, the ohlc plot for each xchange will be displayed
 """
 df_map = []
 def slug_df_lst(cur_df, ohlc=False):
@@ -53,18 +58,26 @@ def slug_df_lst(cur_df, ohlc=False):
                 fig.show()
     return slug_df_lst
 
+"""
+The function below plot the seasonal decomposition for each exchange.
+"""
 def seasonal_decompos(slug_df_lst):
     wkly_df_lst = [df.resample('W').mean().ffill() for df in slug_df_lst]
     x = 0
     for wkly_df in wkly_df_lst:
-        decompose_series = sm.tsa.seasonal_decompose(wkly_df['close'], model='additive')
+        decompose_series = sm.tsa.seasonal_decompose(wkly_df['close'], model='multiplicative')
         decompose_series.plot()
         print(df_map[x])
         x += 1
-        plt.show()
+        return plt.show()
         
+"""
+The function below checks for stationarity in the time series.
+It displays ADFuller Test Statistics for the first xchange in the list,
+then print results for the rest of the xchange
+"""    
 def stationary_check(lst):
-    adf_result = adfuller(lst[2]['close'])
+    adf_result = adfuller(lst[0]['close'])
     print(f'ADF Statistics: {adf_result[0]}')
     print(f'p-value: {adf_result[1]}')
     print(f'No. of lags used: {adf_result[2]}')
@@ -84,6 +97,12 @@ def stationary_check(lst):
             print(f'For {df_map[x]} the series is Non-Stationary')
         x += 1
 
+"""
+The function below converts non-stationary series to stationary series.
+In the process, all xchanges are transform using numpy log.
+If plot is set to true, it will display the stationnary time series for the 
+first xchange. To view other xchange plots, alter the value of x.
+"""
 def convt_to_stat(lst, plot=False, x=0):
     stat_df_lst = []
     for df in lst:
@@ -102,12 +121,18 @@ def convt_to_stat(lst, plot=False, x=0):
         plt.show()
     return stat_df_lst
 
+"""
+Functions to ealuate the model
+"""
 def MAPE(y, y_hat):
         return np.mean(np.abs((y - y_hat)/y)) * 100
 
 def RMSE(y, y_hat):
     return np.sqrt(np.mean(np.square(y - y_hat)))
 
+"""
+Funtion to perform a univariate forecast and evaluate performance
+"""
 def uni_forecast(slug_df_lst, slug=0, plot=False, plot_comp=False):
     print(f'Forecast for {df_map[slug]} exchange')
     print('='*40)
@@ -119,7 +144,7 @@ def uni_forecast(slug_df_lst, slug=0, plot=False, plot_comp=False):
     print(f'Training data shape: {train_data.shape}')
     print(f'Test data shape: {test_data.shape}')
     
-    model = Prophet(seasonality_mode='additive', daily_seasonality=True)
+    model = Prophet(seasonality_mode='multiplicative', daily_seasonality=True,)
     model.fit(train_data)
     
     future = test_data[['ds']]
@@ -138,6 +163,9 @@ def uni_forecast(slug_df_lst, slug=0, plot=False, plot_comp=False):
     print(f'MAPE: {mape}')
     print(f'RMSE: {rmse}')
     
+"""
+Function to perform a multivariate forecaast and evaluate model
+"""    
 def mul_forecast(slug_df_lst, slug=0, plot=False, plot_comp=False):
     new_mul = slug_df_lst[slug].reset_index().drop(columns=['slug', 'currency', 'open'])
     new_mul = new_mul.rename(columns={'date': 'ds', 'high': 'add1', 
@@ -146,7 +174,7 @@ def mul_forecast(slug_df_lst, slug=0, plot=False, plot_comp=False):
     mul_train_data = new_mul.sample(frac=0.7, random_state=2)
     mul_test_data = new_mul.drop(mul_train_data.index)
     
-    n_model = Prophet(seasonality_mode='additive', daily_seasonality=True)
+    n_model = Prophet(seasonality_mode='multiplicative', daily_seasonality=True,)
     n_model.add_regressor('add1')
     n_model.add_regressor('add2')
     n_model.fit(mul_train_data)
