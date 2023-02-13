@@ -74,6 +74,6 @@ def upsample(A_B):
     #upsample to weekly records using mean
     weekly = A_B.resample('W', label='left',closed = 'left').mean()
     print(pd.date_range(start=start_date, end=end_date,freq="W").difference(weekly.index))
-
+    return weekly
         
 
