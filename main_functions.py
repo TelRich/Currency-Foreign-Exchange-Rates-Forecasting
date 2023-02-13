@@ -1,6 +1,9 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+import plotly.offline as po
+po.init_notebook_mode(connected=True)
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.arima_model import ARIMA
@@ -16,15 +19,41 @@ def data_preview():
 
 # slug splitting
 def slug_split():
+    global data
     data["A"]=[str(a).split("/")[0] for a in data["slug"]]
     data["B"]=[str(a).split("/")[1] for a in data["slug"]]
-    return data.head()
+    return data
 
 # unique currencies
 def uniq_cur():
     curA = data["A"].unique()
     curB = data['B'].unique()
     return curA, curB
+
+# Data Visualization
+def plot_viz(currencyA, ohlc=False, start = 0, end=0):
+    data = slug_split()
+    cur = str(currencyA)
+    curA = data[data['A'] == cur] 
+    curA = curA.set_index(pd.to_datetime(curA.date))
+    xch = curA['slug'].unique().tolist()
+    xch_lst = [curA[curA['slug'] == x] for x in xch]
+    if ohlc == True:
+        x = 0
+        for df in xch_lst[start:end]:
+            fig = go.Figure()
+            fig.add_trace(go.Ohlc(x=df.index, 
+                    open=df.open,
+                    high=df.high,
+                    low=df.low,
+                    close=df.close,
+                    name='Price'))
+            fig.update(layout_xaxis_rangeslider_visible=False, layout_width=1000,
+                    layout_title=xch[x])
+            x += 1
+            fig.show()
+    else:
+        return curA[0].head()
 
 # select currency
 def select_curA(prev=False):
@@ -74,6 +103,10 @@ def upsample(A_B):
     #upsample to weekly records using mean
     weekly = A_B.resample('W', label='left',closed = 'left').mean()
     print(pd.date_range(start=start_date, end=end_date,freq="W").difference(weekly.index))
+    #use ffil to fill null values
+    weekly["close"]=weekly["close"].ffill()
+    print(weekly.isnull().sum())
+    print(weekly.shape)
     return weekly
         
 
