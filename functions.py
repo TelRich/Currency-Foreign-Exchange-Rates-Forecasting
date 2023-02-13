@@ -37,14 +37,14 @@ So list[0] = INR/EUR > dataframe
 If ohlc is set to True, the ohlc plot for each xchange will be displayed
 """
 df_map = []
-def slug_df_lst(cur_df, ohlc=False):
+def slug_df_lst(cur_df, ohlc=False, start=0, end=0):
     uniq_xchng = cur_df['slug'].unique()
     global df_map
     df_map = cur_df['slug'].unique().tolist()
     slug_df_lst = [cur_df[cur_df['slug'] == x ]for x in uniq_xchng]
     if ohlc == True:
         x = 0
-        for df in slug_df_lst:
+        for df in slug_df_lst[start:end]:
                 fig = go.Figure()
                 fig.add_trace(go.Ohlc(x=df.index, 
                         open=df.open,
