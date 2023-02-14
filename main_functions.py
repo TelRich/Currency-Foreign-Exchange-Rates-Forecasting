@@ -26,6 +26,7 @@ def slug_split():
 
 # unique currencies
 def uniq_cur():
+    data = slug_split()
     curA = data["A"].unique()
     curB = data['B'].unique()
     return curA, curB
@@ -47,7 +48,8 @@ def plot_viz(currencyA, ohlc=False, start = 0, end=0):
                     high=df.high,
                     low=df.low,
                     close=df.close,
-                    name='Price'))
+                    name='Price',
+                    showlegend=True))
             fig.update(layout_xaxis_rangeslider_visible=False, layout_width=1000,
                     layout_title=xch[x])
             x += 1
@@ -57,6 +59,7 @@ def plot_viz(currencyA, ohlc=False, start = 0, end=0):
 
 # select currency
 def select_curA(prev=False):
+    data = slug_split()
     curr_A = input()
     A_data = data[data["A"]==curr_A]
     preview = A_data.head()
@@ -100,13 +103,78 @@ def select_curB(curA, prev=False):
         return A_B
 
 def upsample(A_B):
+    xch = A_B['slug'].unique()
     #upsample to weekly records using mean
     weekly = A_B.resample('W', label='left',closed = 'left').mean()
     print(pd.date_range(start=start_date, end=end_date,freq="W").difference(weekly.index))
     #use ffil to fill null values
     weekly["close"]=weekly["close"].ffill()
+    print('='*20)
     print(weekly.isnull().sum())
-    print(weekly.shape)
-    return weekly
+    print('='*20)
+    print(f'Weekly Data Shape: {weekly.shape}')
+    return weekly, xch
         
 
+# Plot all features to check if any independant features are present
+def weekly_plot(week_data, closing=False, kde=False, auto_corr=False):
+    weekly = week_data[0]
+    df_close = weekly['close']
+    fig = go.Figure()
+    fig.add_trace(go.Ohlc(x=weekly.index,
+                        open=weekly['open'],
+                        high=weekly['high'],
+                        low=weekly['low'],
+                        close=weekly['close'],
+                        name='Price',
+                        showlegend=True))
+    fig.update_layout(width=1000, title=f'{week_data[1][0]}')
+    fig.show()
+    
+    if closing == True:
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=weekly.index, y=weekly['close']
+        ))
+        fig.update_layout(title=f'{week_data[1][0]} closing price over the years')
+        fig.show()
+        
+    if kde == True:
+        #Analyse the KDE plot of the time series to checks for shape, spread, modes and ouliers
+        df_close.plot(kind='kde')
+        plt.show()
+        
+    if auto_corr == True:
+        #check for autocorrelation with historic values
+        from pandas.plotting import autocorrelation_plot
+        autocorrelation_plot(df_close)
+        plt.show()
+        
+def test_stationarity(timeseries):
+    rolmean = timeseries.rolling(52).mean()
+    rolstd = timeseries.rolling(52).std()
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=timeseries.index, y=timeseries.values, name='Original'
+    ))
+    fig.add_trace(go.Scatter(
+        x=rolmean.index, y=rolmean.values, name='Rolling Mean'
+    ))
+    fig.add_trace(go.Scatter(
+        x=rolstd.index, y=rolstd.values, name='Rolling Std'
+    ))
+    fig.update_layout(title='Rolling Mean and Standard Deviation')
+    fig.show()
+    
+    
+    print("Results of dickey fuller test")
+    adft = adfuller(timeseries,autolag='AIC')
+    # output for dft will give us without defining what the values are.
+    #hence we manually write what values does it explains using a for loop
+    output = pd.Series(adft[0:4],index=['Test Statistics','p-value','No. of lags used','Number of observations used'])
+    for key,values in adft[4].items():
+        output['critical value (%s)'%key] =  values
+    print(output)
+
+    
+    
