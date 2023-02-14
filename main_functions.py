@@ -7,6 +7,7 @@ po.init_notebook_mode(connected=True)
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.arima.model import ARIMA
+from prophet import Prophet
 
 from pmdarima.arima import auto_arima
 from sklearn.metrics import mean_squared_error, mean_absolute_error
@@ -293,9 +294,6 @@ def prophet_model(train_data, test_data, plot=False):
         fig.update_layout(title='Train, Actual, and Prediction', width=900)
         fig.show()
     
-    # plt.plot(np.exp(train_data), label='training data')
-    # plt.plot(np.exp(test_data), color = 'blue', label='Actual Forex rates')
-    # plt.plot(np.exp(fs), color = 'red',label='Predicted Forex rates')
     mse = mean_squared_error(test_data, fs)
     print('MSE: '+str(mse))
     mae = mean_absolute_error(test_data, fs)
