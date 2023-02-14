@@ -231,10 +231,34 @@ def aut_arima(train_data):
     model_autoARIMA.plot_diagnostics(figsize=(15,8))
     plt.show()
     
-def arima(train_data):
+def arima(train_data, test_data, plot=False):
     model = ARIMA(train_data, order=(1,1,2))  
     fitted = model.fit()  
     print(fitted.summary())
     samples=len(test_data)
     fc=fitted.forecast(samples, alpha=0.05)
     fc_series = pd.Series(fc, index=test_data.index)
+    
+    if plot == True:
+        #plot predicted vs actual
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=train_data.index, y=train_data.values, name='Training data'
+        ))
+        fig.add_trace(go.Scatter(
+            x=test_data.index, y=test_data.values, name='Actual Forex rates'
+        ))
+        fig.add_trace(go.Scatter(
+            x=fc_series.index, y=fc_series.values, name='Predicted Forex rates'
+        ))
+        fig.update_layout(title='Train, Actual, and Prediction', width=900)
+        fig.show()
+        
+        mse = mean_squared_error(test_data, fc)
+        print('MSE: '+str(mse))
+        mae = mean_absolute_error(test_data, fc)
+        print('MAE: '+str(mae))
+        rmse = math.sqrt(mean_squared_error(test_data, fc))
+        print('RMSE: '+str(rmse))
+        mape = np.mean(np.abs(fc - test_data)/np.abs(test_data))
+        print('MAPE: '+str(mape))
