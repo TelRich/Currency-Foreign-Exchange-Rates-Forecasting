@@ -262,3 +262,45 @@ def arima(train_data, test_data, plot=False):
         print('RMSE: '+str(rmse))
         mape = np.mean(np.abs(fc - test_data)/np.abs(test_data))
         print('MAPE: '+str(mape))
+
+
+def prophet_model(train_data, test_data, plot=False):
+    train_df=pd.DataFrame(train_data)
+    train_df["ds"]=train_df.index
+    train_df["y"]=train_df["close"]
+    model = Prophet(seasonality_mode='multiplicative', yearly_seasonality=False, weekly_seasonality=True)
+    model.fit(train_df)
+    future = model.make_future_dataframe(periods=len(test_data), freq='W-SUN',include_history=False)
+    forecast = model.predict(future)
+    fs=pd.Series(forecast["yhat"])
+    fs.index=forecast.ds
+    
+    if plot == True:
+        train_data = np.exp(train_data)
+        test_data = np.exp(test_data)
+        fs = np.exp(fs)
+        #plot predicted vs actual
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=train_data.index, y=train_data.values, name='Training data'
+        ))
+        fig.add_trace(go.Scatter(
+            x=test_data.index, y=test_data.values, name='Actual Forex rates'
+        ))
+        fig.add_trace(go.Scatter(
+            x=fs.index, y=fs.values, name='Predicted Forex rates'
+        ))
+        fig.update_layout(title='Train, Actual, and Prediction', width=900)
+        fig.show()
+    
+    # plt.plot(np.exp(train_data), label='training data')
+    # plt.plot(np.exp(test_data), color = 'blue', label='Actual Forex rates')
+    # plt.plot(np.exp(fs), color = 'red',label='Predicted Forex rates')
+    mse = mean_squared_error(test_data, fs)
+    print('MSE: '+str(mse))
+    mae = mean_absolute_error(test_data, fs)
+    print('MAE: '+str(mae))
+    rmse = math.sqrt(mean_squared_error(test_data, fs))
+    print('RMSE: '+str(rmse))
+    mape = np.mean(np.abs(fs - test_data)/np.abs(test_data))
+    print('MAPE: '+str(mape))
