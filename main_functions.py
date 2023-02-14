@@ -269,7 +269,8 @@ def prophet_model(train_data, test_data, plot=False):
     train_df=pd.DataFrame(train_data)
     train_df["ds"]=train_df.index
     train_df["y"]=train_df["close"]
-    model = Prophet(seasonality_mode='multiplicative', yearly_seasonality=False, weekly_seasonality=True)
+    model = Prophet(seasonality_mode='multiplicative', yearly_seasonality=False,
+                    weekly_seasonality=False, daily_seasonality=True)
     model.fit(train_df)
     future = model.make_future_dataframe(periods=len(test_data), freq='W-SUN',include_history=False)
     forecast = model.predict(future)
@@ -277,19 +278,19 @@ def prophet_model(train_data, test_data, plot=False):
     fs.index=forecast.ds
     
     if plot == True:
-        train_data = np.exp(train_data)
-        test_data = np.exp(test_data)
-        fs = np.exp(fs)
+        train_data1 = np.exp(train_data)
+        test_data1 = np.exp(test_data)
+        fs1 = np.exp(fs)
         #plot predicted vs actual
         fig = go.Figure()
         fig.add_trace(go.Scatter(
-            x=train_data.index, y=train_data.values, name='Training data'
+            x=train_data1.index, y=train_data1.values, name='Training data'
         ))
         fig.add_trace(go.Scatter(
-            x=test_data.index, y=test_data.values, name='Actual Forex rates'
+            x=test_data1.index, y=test_data1.values, name='Actual Forex rates'
         ))
         fig.add_trace(go.Scatter(
-            x=fs.index, y=fs.values, name='Predicted Forex rates'
+            x=fs1.index, y=fs1.values, name='Predicted Forex rates'
         ))
         fig.update_layout(title='Train, Actual, and Prediction', width=900)
         fig.show()
