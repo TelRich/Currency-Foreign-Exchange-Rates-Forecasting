@@ -6,7 +6,8 @@ import plotly.offline as po
 po.init_notebook_mode(connected=True)
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.seasonal import seasonal_decompose
-from statsmodels.tsa.arima_model import ARIMA
+from statsmodels.tsa.arima.model import ARIMA
+
 from pmdarima.arima import auto_arima
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 import math
@@ -163,7 +164,7 @@ def test_stationarity(timeseries):
     fig.add_trace(go.Scatter(
         x=rolstd.index, y=rolstd.values, name='Rolling Std'
     ))
-    fig.update_layout(title='Rolling Mean and Standard Deviation')
+    fig.update_layout(title='Rolling Mean and Standard Deviation', width=900)
     fig.show()
     
     
@@ -176,5 +177,64 @@ def test_stationarity(timeseries):
         output['critical value (%s)'%key] =  values
     print(output)
 
+def seasonal_decomp(df_close):
+    result = seasonal_decompose(df_close, model='multiplicative')
+    fig = plt.figure()  
+    fig = result.plot()  
+    fig.set_size_inches(16, 9)
+    plt.show()
+
+def conv_to_statn(df_close):
+    df_log = np.log(df_close)
+    moving_avg = df_log.rolling(52).mean()
+    std_dev = df_log.rolling(52).std()
     
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=moving_avg.index, y=moving_avg.values, name='Mean'
+    ))
+    fig.add_trace(go.Scatter(
+        x=std_dev.index, y=std_dev.values, name='Standard Deviation'
+    ))
+    fig.update_layout(title='Moving Average', width=900)
+    fig.show()
+    return df_log
+
+def train_test_split(df_log):
+    train_data, test_data = df_log[3:int(len(df_log)*0.9)], df_log[int(len(df_log)*0.9):]
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=df_log.index, y=df_log.values, name='Train data'
+    ))
+    fig.add_trace(go.Scatter(
+        x=test_data.index, y=test_data.values, name='Test data'
+    ))
+    fig.update_layout(width=900, yaxis_title='Closing Price')
+    fig.show()
+    return train_data, test_data
+
+def aut_arima(train_data):
+    #create an instance of Auto arima
+    model_autoARIMA = auto_arima(train_data, start_p=0, start_q=0,
+                        test='adf',       # use adftest to find optimal 'd'
+                        max_p=3, max_q=3, # maximum p and q
+                        m=1,              # frequency of series
+                        d=None,           # let model determine 'd'
+                        seasonal=False,   # No Seasonality
+                        start_P=0, 
+                        D=0, 
+                        trace=True,
+                        error_action='ignore',  
+                        suppress_warnings=True, 
+                        stepwise=True)
+    print(model_autoARIMA.summary())
+    model_autoARIMA.plot_diagnostics(figsize=(15,8))
+    plt.show()
     
+def arima(train_data):
+    model = ARIMA(train_data, order=(1,1,2))  
+    fitted = model.fit()  
+    print(fitted.summary())
+    samples=len(test_data)
+    fc=fitted.forecast(samples, alpha=0.05)
+    fc_series = pd.Series(fc, index=test_data.index)
