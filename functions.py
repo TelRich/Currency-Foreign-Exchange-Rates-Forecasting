@@ -51,7 +51,8 @@ def slug_df_lst(cur_df, ohlc=False, start=0, end=0):
                         high=df.high,
                         low=df.low,
                         close=df.close,
-                        name='Price'))
+                        name='Price',
+                        showlegend=True))
                 fig.update(layout_xaxis_rangeslider_visible=False, layout_width=1000,
                         layout_title=df_map[x])
                 x += 1
