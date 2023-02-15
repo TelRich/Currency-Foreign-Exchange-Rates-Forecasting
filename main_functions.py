@@ -8,7 +8,7 @@ from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.arima.model import ARIMA
 from prophet import Prophet
-
+from pylab import rcParams
 from pmdarima.arima import auto_arima
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 import math
@@ -136,17 +136,19 @@ def weekly_plot(week_data, closing=False, kde=False, auto_corr=False):
     if closing == True:
         fig = go.Figure()
         fig.add_trace(go.Scatter(
-            x=weekly.index, y=weekly['close']
+            x=weekly.index, y=weekly['close'], name='Closing value'
         ))
-        fig.update_layout(title=f'{week_data[1][0]} closing price over the years')
+        fig.update_layout(title=f'{week_data[1][0]} closing price over the years', showlegend=True)
         fig.show()
         
     if kde == True:
+        rcParams['figure.figsize'] = 10, 6
         #Analyse the KDE plot of the time series to checks for shape, spread, modes and ouliers
         df_close.plot(kind='kde')
         plt.show()
         
     if auto_corr == True:
+        rcParams['figure.figsize'] = 10, 6
         #check for autocorrelation with historic values
         from pandas.plotting import autocorrelation_plot
         autocorrelation_plot(df_close)
