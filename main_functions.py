@@ -1,3 +1,4 @@
+# Importing required library
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -13,27 +14,43 @@ from pmdarima.arima import auto_arima
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 import math
 
+# Loading the data
 data = pd.read_csv("forex.csv")
 
 # data preview
 def data_preview():
     return data.head()
 
-# slug splitting
+"""
+The function below split the exchange currency in the slug column and 
+seperate the left and right currency to a new coulum respectively.
+"""
 def slug_split():
     global data
     data["A"]=[str(a).split("/")[0] for a in data["slug"]]
     data["B"]=[str(a).split("/")[1] for a in data["slug"]]
     return data
 
-# unique currencies
+
+"""
+The function below display the unique currency, 
+left and right after splitting.
+"""
 def uniq_cur():
     data = slug_split()
     curA = data["A"].unique()
     curB = data['B'].unique()
     return curA, curB
 
-# Data Visualization
+"""
+The function below, with the help of the Ohlc method from plotly
+graphs objects, plot the open, high, low and close of a currency pair(exchange)
+If Ohlc is not set to True, the function will return the first five row of the
+dataframe. Because of the high number of unique currency on the right, start and end
+was implemented to help slice the number of visuals to display.
+E.g if you select USD >> USD/x. There are more than 15 currency for x, thus you may want
+to display just a few to save memory and reduce running time.
+"""
 def plot_viz(currencyA, ohlc=False, start = 0, end=0):
     data = slug_split()
     cur = str(currencyA)
@@ -53,13 +70,19 @@ def plot_viz(currencyA, ohlc=False, start = 0, end=0):
                     name='Price',
                     showlegend=True))
             fig.update(layout_xaxis_rangeslider_visible=False, layout_width=1000,
-                    layout_title=xch[x])
+                    layout_title=xch[x], yaxis_title='Open, High, Low, and Close')
             x += 1
             fig.show()
     else:
         return curA[0].head()
 
-# select currency
+
+"""
+The function below processes currency A inserted by the user.
+It filters the main data for that currerncy, and display the possible currency B
+that you can choose for the selected currency A. You can preview the dataframe
+by setting prev to True, then use index 0 to display it.
+"""
 def select_curA(prev=False):
     data = slug_split()
     curr_A = input()
@@ -72,7 +95,11 @@ def select_curA(prev=False):
     else:
         return A_data
 
-
+"""
+The function below forms a dataframe of currency A selected above, with all posible 
+currency B. It prints the shape of the dataframe if shape is set to True. x is used to
+control the number of dataframe shapes it display.
+"""
 def posB_dfs(A_data, shape=False, x=5):
     Alist=[]
     for b in A_data["B"].unique():
@@ -84,6 +111,7 @@ def posB_dfs(A_data, shape=False, x=5):
             print(b,A_data[A_data["B"]==b].shape)
     return cur_map
 
+# setting start date and end date for global use.
 start_date = 0
 end_date = 0
 
