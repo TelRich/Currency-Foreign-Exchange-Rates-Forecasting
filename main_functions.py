@@ -14,10 +14,10 @@ from pmdarima.arima import auto_arima
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 import math
 
-# Loading the data
+"""Loading the data"""
 data = pd.read_csv("forex.csv")
 
-# data preview
+"""data preview"""
 def data_preview():
     return data.head()
 
@@ -70,7 +70,7 @@ def plot_viz(currencyA, ohlc=False, start = 0, end=0):
                     name='Price',
                     showlegend=True))
             fig.update(layout_xaxis_rangeslider_visible=False, layout_width=1000,
-                    layout_title=xch[x], yaxis_title='Open, High, Low, and Close')
+                    layout_title=f'{xch[x]} Candle Stick Chart', layout_yaxis_title='Open, High, Low, and Close')
             x += 1
             fig.show()
     else:
@@ -89,14 +89,14 @@ def select_curA(prev=False):
     A_data = data[data["A"]==curr_A]
     preview = A_data.head()
     pos_curB = A_data["B"].unique()
-    print(f"Possible Currency B for {curr_A} \n {'='*100} {pos_curB}")
+    print(f"Below are the possible currency B for {curr_A} \n {'='*100} {pos_curB}")
     if prev == True:
         return preview, A_data
     else:
         return A_data
 
 """
-The function below forms a dataframe of currency A selected above, with all posible 
+The function below forms a dictionary of dataframe for currency A selected above, with all posible 
 currency B. It prints the shape of the dataframe if shape is set to True. x is used to
 control the number of dataframe shapes it display.
 """
@@ -111,10 +111,14 @@ def posB_dfs(A_data, shape=False, x=5):
             print(b,A_data[A_data["B"]==b].shape)
     return cur_map
 
-# setting start date and end date for global use.
+# setting start date and end date for global use
 start_date = 0
 end_date = 0
 
+"""
+The function below takes currency B from the user and filter the dictionary from above
+and return the dataframe for the currency pair.
+"""
 def select_curB(curA, prev=False):
     cur_B=input()
     preview = curA[cur_B].head()
@@ -125,13 +129,18 @@ def select_curB(curA, prev=False):
     global start_date, end_date
     start_date = A_B.iloc[0].date
     end_date = A_B.iloc[-1].date
-    print(f"Missing entries \n {'='*100}")
+    print(f"Missing entries \n{'='*100}")
     print(pd.date_range(start=start_date, end=end_date).difference(A_B.index))
     if prev == True:
         return preview, A_B
     else:
         return A_B
 
+"""
+The function below is used to resample the dataframe to weekly, showing the mean.
+It also print out the days with no entries. Because of the data leakage, only close
+variable will be used for prediction, thus missing value for only close variable was handled.
+"""
 def upsample(A_B):
     xch = A_B['slug'].unique()
     #upsample to weekly records using mean
@@ -145,10 +154,17 @@ def upsample(A_B):
     print(f'Weekly Data Shape: {weekly.shape}')
     return weekly, xch
         
-
+"""
+The function below plots the weekly data showing the time series. 
+With closing, kde, and auto_corr set to True, it will plot the closing value,
+density plot and auto correlation plot for the close feature.
+"""
+cur_name = ''
 # Plot all features to check if any independant features are present
 def weekly_plot(week_data, closing=False, kde=False, auto_corr=False):
     weekly = week_data[0]
+    global cur_name
+    cur_name = week_data[1][0]
     df_close = weekly['close']
     fig = go.Figure()
     fig.add_trace(go.Ohlc(x=weekly.index,
@@ -158,7 +174,8 @@ def weekly_plot(week_data, closing=False, kde=False, auto_corr=False):
                         close=weekly['close'],
                         name='Price',
                         showlegend=True))
-    fig.update_layout(width=1000, title=f'{week_data[1][0]}')
+    fig.update_layout(width=1000, title=f'{week_data[1][0]} Candle Stick Chart',
+                      yaxis_title='Open, High, Low, and Close')
     fig.show()
     
     if closing == True:
@@ -166,13 +183,15 @@ def weekly_plot(week_data, closing=False, kde=False, auto_corr=False):
         fig.add_trace(go.Scatter(
             x=weekly.index, y=weekly['close'], name='Closing value'
         ))
-        fig.update_layout(title=f'{week_data[1][0]} closing price over the years', showlegend=True)
+        fig.update_layout(title=f'{week_data[1][0]} closing price over the years', showlegend=True,
+                          yaxis_title='Closing Price')
         fig.show()
         
     if kde == True:
         rcParams['figure.figsize'] = 10, 6
         #Analyse the KDE plot of the time series to checks for shape, spread, modes and ouliers
         df_close.plot(kind='kde')
+        plt.title('Close price density plot')
         plt.show()
         
     if auto_corr == True:
@@ -180,8 +199,14 @@ def weekly_plot(week_data, closing=False, kde=False, auto_corr=False):
         #check for autocorrelation with historic values
         from pandas.plotting import autocorrelation_plot
         autocorrelation_plot(df_close)
+        plt.title('Close price auto correlation plot')
         plt.show()
-        
+
+
+"""
+The function below plots the rolling mean and rolling stationarity of the series.
+It also prints the Dickey Fuller test statistics.
+"""    
 def test_stationarity(timeseries):
     rolmean = timeseries.rolling(52).mean()
     rolstd = timeseries.rolling(52).std()
@@ -195,7 +220,8 @@ def test_stationarity(timeseries):
     fig.add_trace(go.Scatter(
         x=rolstd.index, y=rolstd.values, name='Rolling Std'
     ))
-    fig.update_layout(title='Rolling Mean and Standard Deviation', width=900)
+    fig.update_layout(title=f'{cur_name} Rolling Mean and Standard Deviation', width=900,
+                      yaxis_title='Closing Price')
     fig.show()
     
     
@@ -208,6 +234,7 @@ def test_stationarity(timeseries):
         output['critical value (%s)'%key] =  values
     print(output)
 
+"""The function below plot the seasonal decompose of the weekly closing price."""
 def seasonal_decomp(df_close):
     result = seasonal_decompose(df_close, model='multiplicative')
     fig = plt.figure()  
@@ -215,6 +242,10 @@ def seasonal_decomp(df_close):
     fig.set_size_inches(16, 9)
     plt.show()
 
+"""
+The function below converts the non-stationary series to stationary series.
+It plots the chart to display the new rolling mean and standard deviation 
+"""
 def conv_to_statn(df_close):
     df_log = np.log(df_close)
     moving_avg = df_log.rolling(52).mean()
@@ -227,10 +258,15 @@ def conv_to_statn(df_close):
     fig.add_trace(go.Scatter(
         x=std_dev.index, y=std_dev.values, name='Standard Deviation'
     ))
-    fig.update_layout(title='Moving Average', width=900)
+    fig.update_layout(title='Moving Average and Standard average', width=900,
+                      yaxis_title = 'Closing Price')
     fig.show()
     return df_log
 
+"""
+The function below splits the data and plot the visual. It also returns the train
+and test data.
+"""
 def train_test_split(df_log):
     train_data, test_data = df_log[3:int(len(df_log)*0.9)], df_log[int(len(df_log)*0.9):]
     fig = go.Figure()
@@ -240,10 +276,14 @@ def train_test_split(df_log):
     fig.add_trace(go.Scatter(
         x=test_data.index, y=test_data.values, name='Test data'
     ))
-    fig.update_layout(width=900, yaxis_title='Closing Price')
+    fig.update_layout(width=900, yaxis_title='Closing Price', title=f'{cur_name} Train data and Test Data')
     fig.show()
     return train_data, test_data
 
+"""
+The function below takes in the train data and prints the autoARIMA summary.
+It also plot the diagnostics of the model.
+"""
 def aut_arima(train_data):
     #create an instance of Auto arima
     model_autoARIMA = auto_arima(train_data, start_p=0, start_q=0,
@@ -262,6 +302,11 @@ def aut_arima(train_data):
     model_autoARIMA.plot_diagnostics(figsize=(15,8))
     plt.show()
     
+"""
+The function below takes in the train and test data which is used in the ARIMA model
+for forecasting. It also prints out the model Summary and display the data plot. 
+It prints out the model evaluation at the end.
+"""
 def arima(train_data, test_data, plot=False):
     model = ARIMA(train_data, order=(1,1,2))  
     fitted = model.fit()  
@@ -282,7 +327,8 @@ def arima(train_data, test_data, plot=False):
         fig.add_trace(go.Scatter(
             x=fc_series.index, y=fc_series.values, name='Predicted Forex rates'
         ))
-        fig.update_layout(title='Train, Actual, and Prediction', width=900)
+        fig.update_layout(title=f'{cur_name} Train, Actual, and Prediction Chart', width=900,
+                          yaxis_title='Closing Price')
         fig.show()
         
         mse = mean_squared_error(test_data, fc)
@@ -294,7 +340,11 @@ def arima(train_data, test_data, plot=False):
         mape = np.mean(np.abs(fc - test_data)/np.abs(test_data))
         print('MAPE: '+str(mape))
 
-
+"""
+The function below takes in the train and test data which is used in the prophet model
+for forecasting. It plots the splitting and prediction chart the display the model evaluation 
+at the end.
+"""
 def prophet_model(train_data, test_data, plot=False):
     train_df=pd.DataFrame(train_data)
     train_df["ds"]=train_df.index
@@ -322,7 +372,8 @@ def prophet_model(train_data, test_data, plot=False):
         fig.add_trace(go.Scatter(
             x=fs1.index, y=fs1.values, name='Predicted Forex rates'
         ))
-        fig.update_layout(title='Train, Actual, and Prediction', width=900)
+        fig.update_layout(title=f'{cur_name} Train, Actual, and Prediction chart', width=900,
+                          yaxis_title='Closing Price')
         fig.show()
     
     mse = mean_squared_error(test_data, fs)
