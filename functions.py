@@ -54,7 +54,8 @@ def slug_df_lst(cur_df, ohlc=False, start=0, end=0):
                         name='Price',
                         showlegend=True))
                 fig.update(layout_xaxis_rangeslider_visible=False, layout_width=1000,
-                        layout_title=df_map[x])
+                        layout_title=f'{df_map[x]} Candle Stick Chart',
+                        layout_yaxis_title='Open, High, Low, and Close')
                 x += 1
                 fig.show()
     return slug_df_lst
