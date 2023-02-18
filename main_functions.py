@@ -284,6 +284,9 @@ def train_test_split(df_log):
 The function below takes in the train data and prints the autoARIMA summary.
 It also plot the diagnostics of the model.
 """
+p = 0
+d = 0
+q = 0
 def aut_arima(train_data):
     #create an instance of Auto arima
     model_autoARIMA = auto_arima(train_data, start_p=0, start_q=0,
@@ -300,6 +303,8 @@ def aut_arima(train_data):
                         stepwise=True)
     print(model_autoARIMA.summary())
     model_autoARIMA.plot_diagnostics(figsize=(15,8))
+    global p, d, q
+    p, d, q = model_autoARIMA.order
     plt.show()
     
 """
@@ -308,7 +313,7 @@ for forecasting. It also prints out the model Summary and display the data plot.
 It prints out the model evaluation at the end.
 """
 def arima(train_data, test_data, plot=False):
-    model = ARIMA(train_data, order=(1,1,2))  
+    model = ARIMA(train_data, order=(p,d,q))  
     fitted = model.fit()  
     print(fitted.summary())
     samples=len(test_data)
@@ -349,8 +354,7 @@ def prophet_model(train_data, test_data, plot=False):
     train_df=pd.DataFrame(train_data)
     train_df["ds"]=train_df.index
     train_df["y"]=train_df["close"]
-    model = Prophet(seasonality_mode='multiplicative', yearly_seasonality=False,
-                    weekly_seasonality=False, daily_seasonality=True)
+    model = Prophet(seasonality_mode='additive', weekly_seasonality=True, daily_seasonality=True)
     model.fit(train_df)
     future = model.make_future_dataframe(periods=len(test_data), freq='W-SUN',include_history=False)
     forecast = model.predict(future)
