@@ -51,7 +51,7 @@ was implemented to help slice the number of visuals to display.
 E.g if you select USD >> USD/x. There are more than 15 currency for x, thus you may want
 to display just a few to save memory and reduce running time.
 """
-def plot_viz(currencyA, ohlc=False, start = 0, end=0):
+def plot_viz(currencyA, ohlc=False, start = 0, end=1):
     data = slug_split()
     cur = str(currencyA)
     curA = data[data['A'] == cur] 
@@ -59,8 +59,8 @@ def plot_viz(currencyA, ohlc=False, start = 0, end=0):
     xch = curA['slug'].unique().tolist()
     xch_lst = [curA[curA['slug'] == x] for x in xch]
     if ohlc == True:
-        x = 0
         for df in xch_lst[start:end]:
+            name = df['slug'].unique()[0]
             fig = go.Figure()
             fig.add_trace(go.Ohlc(x=df.index, 
                     open=df.open,
@@ -70,11 +70,10 @@ def plot_viz(currencyA, ohlc=False, start = 0, end=0):
                     name='Price',
                     showlegend=True))
             fig.update(layout_xaxis_rangeslider_visible=False, layout_width=1000,
-                    layout_title=f'{xch[x]} Candle Stick Chart', layout_yaxis_title='Open, High, Low, and Close')
-            x += 1
+                    layout_title=f'{name} Candle Stick Chart', layout_yaxis_title='Open, High, Low, and Close')
             fig.show()
     else:
-        return curA[0].head()
+        return curA.head()
 
 
 """
