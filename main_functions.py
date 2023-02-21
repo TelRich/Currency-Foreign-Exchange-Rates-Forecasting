@@ -311,6 +311,9 @@ The function below takes in the train and test data which is used in the ARIMA m
 for forecasting. It also prints out the model Summary and display the data plot. 
 It prints out the model evaluation at the end.
 """
+A_MAPE = 0
+P_MAPE = 0
+
 def arima(train_data, test_data, plot=False):
     model = ARIMA(train_data, order=(p,d,q))  
     fitted = model.fit()  
@@ -342,6 +345,8 @@ def arima(train_data, test_data, plot=False):
         rmse = math.sqrt(mean_squared_error(test_data, fc))
         print('RMSE: '+str(rmse))
         mape = np.mean(np.abs(fc - test_data)/np.abs(test_data))
+        global A_MAPE
+        A_MAPE = mape
         print('MAPE: '+str(mape))
 
 """
@@ -386,4 +391,15 @@ def prophet_model(train_data, test_data, plot=False):
     rmse = math.sqrt(mean_squared_error(test_data, fs))
     print('RMSE: '+str(rmse))
     mape = np.mean(np.abs(fs - test_data)/np.abs(test_data))
+    global P_MAPE
+    P_MAPE = mape
     print('MAPE: '+str(mape))
+    
+    
+def performance():
+    diff = A_MAPE-P_MAPE
+    pct = (diff/A_MAPE)*100
+    if pct < 0:
+        print(f'With Prophet Model, ARIMA error {round(A_MAPE, 5)} increased by {round(pct, 2)}% ({round(P_MAPE, 5)})')
+    else:
+        print(f'With Prophet Model, ARIMA error {round(A_MAPE, 5)} reduced by {round(pct, 2)}% ({round(P_MAPE, 5)})')

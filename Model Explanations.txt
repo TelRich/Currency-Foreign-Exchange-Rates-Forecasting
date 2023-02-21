@@ -1,0 +1,88 @@
+Model Explainations to be used by Bamise in main project comments/explanations:
+ 
+1. Auto Arima:
+
+This is a type of ARIMA model that automatically chooses the most optimal values for the parameters like 
+p: the order of auto-regeression, 
+d: the order of integration, 
+and q: the order of moving average.
+
+Auto arima works by performing differencing tests(Canova-Hansen method of finding optimal order of seasonal differencing is used.). 
+It moves through all combinations of p, q, d in a given range and selects the fit with the least value for a chosen metric. 
+Metrics commonly used are Kwiatkowski–Phillips–Schmidt–Shin, Augmented Dickey-Fuller, or Phillips–Perron.
+We have chosen to use ADF metric for our time series analysis.
+
+We have use auto arima to save time while building and tuning our model since 
+it would be tedious to select optimal p, q, d values for all 300+ currency pairs in our dataset. 
+The end result is a better fitted model and more accurate prdeictions for our forecasting project.
+
+Summary plots:
+The residual errors appear to have a uniform variance and fluctuate around a mean of zero.
+The density plot on the top right suggests a normal distribution with a mean of zero.
+The red line is aligned with all of the dots. Any significant deviations would indicate a skewed distribution.
+The residual errors are not autocorrelated. Any autocorrelation would imply that the residual errors have a pattern that isn’t explained by the model.
+
+
+
+
+2.  Arima:
+
+An ARIMA model is created by using pmdarima module. 
+The order parameter expects a tuple of three integers representing the number of autoregressive (p), differencing (d), and moving average (q) 
+terms to include in the model.
+These parameters are extracted from the auto-arima model in the previous step by using the order() function.
+The model information, coefficient estimates, model diagnostics, Information criteria and residuals are printed using the fitted summary function.
+
+The forecast() method is used to generate a forecast for the next n time periods in the time series using the fitted ARIMA model. 
+n is the number of test records.
+
+To evaluate the fitting by ARIMA, we have used the below metrics:
+1.	Mean Squared Error (MSE): MSE measures the average squared difference between the predicted and actual 
+values of a time series. A lower MSE value indicates better performance. The formula for MSE is:
+MSE = (1/n) * Σ(actual_i - predicted_i)^2
+where n is the number of observations in the time series, actual_i is the actual value of the i-th observation, 
+and predicted_i is the predicted value of the i-th observation.
+2.	Root Mean Squared Error (RMSE): RMSE is the square root of the MSE, and it measures the average distance 
+between the predicted and actual values of a time series. Like MSE, a lower RMSE value indicates better performance. 
+The formula for RMSE is:
+RMSE = sqrt((1/n) * Σ(actual_i - predicted_i)^2)
+3.	Mean Absolute Error (MAE): MAE measures the average absolute difference between the predicted and 
+actual values of a time series. It is less sensitive to outliers than MSE and RMSE. The formula for MAE is:
+MAE = (1/n) * Σ|actual_i - predicted_i|
+4.	Mean Absolute Percentage Error (MAPE): MAPE measures the average percentage difference between the predicted and 
+actual values of a time series. It is often used to evaluate the accuracy of forecasting models. The formula for MAPE is:
+MAPE = (1/n) * Σ|(actual_i - predicted_i)/actual_i|
+These metrics are commonly used to evaluate the performance of ARIMA models.
+
+
+
+3. FBProphet:
+
+The second model we have tried is the open source prophet model provided by Facebook. 
+The seasonality mode parameter controls how seasonality is modeled in the time series data. We have chosen additive
+ by assuming seasonal effects are additive to the trend component.
+The parameter daily_seasonality is a boolean that is set to True to include a daily
+ seasonality component, which means that patterns that repeat on a daily basis will be captured.
+Similarly weekly_seasonality is also set to true to capture any weekly seasonaloitys that might be present.
+
+The training data is used to fit the prophet model and it contains a "ds" column which is the 
+datetime column that represents the time periods in the time series and a "y" column representing the close prices.
+
+The make_future_dataframe() is used to create a new dataframe for future time periods. this is a build in method of the prophet model.
+periods parameter specifies the number of time periods for which you want to make predictions. In this case, periods=len(test_data) means 
+that the number of future time periods is equal to the length of the test data. freq='W-SUN' means that the time series has a weekly 
+frequency and the week ends on Sunday.
+
+After creating the Prophet model instance and fitting it to the training data, we used it to make predictions for the future time 
+periods having the length of the test data 
+using the model.predict() function. The output of the predict() function is a pandas DataFrame that contains the predicted values, 
+along with the uncertainty intervals for each prediction. The yhat column of the predictions is then used to measure the performance metrics of the model,.
+
+We have use the below metrics to evaluate the prophet model fitting:
+1.Mean Squared Error (MSE)
+2.Root Mean Squared Error (RMSE)
+3.Mean Absolute Error (MAE)
+4.Mean Absolute Percentage Error (MAPE)
+
+
+
