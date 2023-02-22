@@ -400,6 +400,6 @@ def performance():
     diff = A_MAPE-P_MAPE
     pct = (diff/A_MAPE)*100
     if pct < 0:
-        print(f'With Prophet Model, ARIMA error {round(A_MAPE, 5)} increased by {round(pct, 2)}% ({round(P_MAPE, 5)})')
+        print(f'With Prophet Model, ARIMA error {round(A_MAPE, 5)} increased by {round(abs(pct), 2)}% ({round(P_MAPE, 5)})')
     else:
-        print(f'With Prophet Model, ARIMA error {round(A_MAPE, 5)} reduced by {round(pct, 2)}% ({round(P_MAPE, 5)})')
+        print(f'With Prophet Model, ARIMA error {round(A_MAPE, 5)} reduced by {round(abs(pct), 2)}% ({round(P_MAPE, 5)})')
