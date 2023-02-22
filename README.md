@@ -7,11 +7,12 @@
 ### [Click to view Full Project](https://nbviewer.org/github/TelRich/Currency-Foreign-Exchange-Rates/blob/main/Exchange_Rates_Prediction.ipynb?flush_cache=True)
 ### [Click to view Data Visualization](https://nbviewer.org/github/TelRich/Currency-Foreign-Exchange-Rates/blob/main/data_viz.ipynb)
 ### [Click to view Project Dashboard](https://swathi0710-forexprediction-timeseries-dqrtk2.streamlit.app/)
+---
 
 ![](image/newplot.png)
 ![](image/newplot1.png)
 
-### Summary
+## Summary
 In this project we forecasted the closing price of currency exchange. 
 
 There are 7 unique currency to the left of the currency pair 
@@ -59,4 +60,13 @@ Considering USD/INR, below is the result from ARIMA and Prophet Model
 |RMSE| 0.033673551177250606|RMSE| 0.03069564023615018
 |MAPE| 0.0067861488558217395|MAPE| 0.0045100611420522295
 
-### Limitations
+## Limitations
+1. Our Dataset does not contain data for the past 2 years which may have helped with more accurate predictions.
+2. The project has not taken into consideration the effects of change in one currency pair on another.
+3. The project has not acquired data about external factors that may have an effect on exchange rates like socio-economic conditions, international relationships and natural disasters.
+
+## Future Scope for Improvement
+1. Data should be collected for the years 2021-2023 and more currency pairs can be added.
+2. Additional seasonal models should be explored and compared with the performance of FBprophet.
+3. A user friendly Mobile application can be built using the streamlit API.
+4. The application can use the currency rate predictions to estimate stock and trading options to help investors make better decisions.
