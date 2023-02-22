@@ -336,6 +336,7 @@ def arima(train_data, test_data, plot=False):
                           yaxis_title='Closing Price')
         fig.show()
         
+        # Evaluation
         mse = mean_squared_error(test_data, fc)
         print('MSE: '+str(mse))
         mae = mean_absolute_error(test_data, fc)
