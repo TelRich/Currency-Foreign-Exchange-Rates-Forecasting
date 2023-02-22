@@ -27,14 +27,14 @@ def select(cur: str):
     return currency
 
 """
-funtion to create a dataframe of each exchange in the slug colum for a selected currency.
-it also plot the ohlc of each exchange if ohlc is set to true.
+Funtion to create a data frame of each exchange in the slug column for a selected currency.
+It also plots the ohlc of each exchange if ohlc is set to true.
 
-example: if you selected EUR as the currency. EUR has 6 xchange INR/EUR, AUD/EUR,
+Example: if you selected EUR as the currency. EUR has 6 xchange INR/EUR, AUD/EUR,
 JPY/EUR, CHF/EUR, USD/EUR, and GBP/EUR. The below function will filter for each of
-this xchange and return a dataframe for each xchange, all in a list. 
+this exchange and return a dataframe for each exchange, all in a list. 
 So list[0] = INR/EUR > dataframe 
-If ohlc is set to True, the ohlc plot for each xchange will be displayed
+If ohlc is set to True, the ohlc plot for each exchange will be displayed
 """
 df_map = []
 def slug_df_lst(cur_df, ohlc=False, start=0, end=0):
@@ -61,7 +61,7 @@ def slug_df_lst(cur_df, ohlc=False, start=0, end=0):
     return slug_df_lst
 
 """
-The function below plot the seasonal decomposition for each exchange.
+The function below plots the seasonal decomposition for each exchange.
 """
 def seasonal_decompos(slug_df_lst):
     wkly_df_lst = [df.resample('W').mean().ffill() for df in slug_df_lst]
@@ -75,8 +75,8 @@ def seasonal_decompos(slug_df_lst):
         
 """
 The function below checks for stationarity in the time series.
-It displays ADFuller Test Statistics for the first xchange in the list,
-then print results for the rest of the xchange
+It displays ADFuller Test Statistics for the first exchange in the list,
+then print results for the rest of the exchange
 """    
 def stationary_check(lst):
     adf_result = adfuller(lst[0]['close'])
@@ -101,9 +101,9 @@ def stationary_check(lst):
 
 """
 The function below converts non-stationary series to stationary series.
-In the process, all xchanges are transform using numpy log.
-If plot is set to true, it will display the stationnary time series for the 
-first xchange. To view other xchange plots, alter the value of x.
+In the process, all exchanges are transformed using a numpy log.
+If the plot is set to true, it will display the stationary time series for the 
+first exchange. To view other exchange plots, alter the value of x.
 """
 def convt_to_stat(lst, plot=False, x=0):
     stat_df_lst = []
@@ -124,7 +124,7 @@ def convt_to_stat(lst, plot=False, x=0):
     return stat_df_lst
 
 """
-Functions to ealuate the model
+Functions to evaluate the model
 """
 def MAPE(y, y_hat):
         return np.mean(np.abs((y - y_hat)/y)) * 100
@@ -133,7 +133,7 @@ def RMSE(y, y_hat):
     return np.sqrt(np.mean(np.square(y - y_hat)))
 
 """
-Funtion to perform a univariate forecast and evaluate performance
+Function to perform a univariate forecast and evaluate performance
 """
 def uni_forecast(slug_df_lst, slug=0, plot=False, plot_comp=False):
     print(f'Forecast for {df_map[slug]} exchange')
@@ -166,7 +166,7 @@ def uni_forecast(slug_df_lst, slug=0, plot=False, plot_comp=False):
     print(f'RMSE: {rmse}')
     
 """
-Function to perform a multivariate forecaast and evaluate model
+Function to perform a multivariate forecast and evaluate model
 """    
 def mul_forecast(slug_df_lst, slug=0, plot=False, plot_comp=False):
     new_mul = slug_df_lst[slug].reset_index().drop(columns=['slug', 'currency', 'open'])
