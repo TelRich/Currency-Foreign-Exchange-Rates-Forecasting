@@ -22,8 +22,8 @@ def data_preview():
     return data.head()
 
 """
-The function below split the exchange currency in the slug column and 
-seperate the left and right currency to a new coulum respectively.
+ The function below split the exchange currency in the slug column 
+and separate the left and right currency to a new column respectively.
 """
 def slug_split():
     global data
@@ -33,8 +33,7 @@ def slug_split():
 
 
 """
-The function below display the unique currency, 
-left and right after splitting.
+The function below displays the unique currency,left and right after splitting.
 """
 def uniq_cur():
     data = slug_split()
@@ -43,13 +42,12 @@ def uniq_cur():
     return curA, curB
 
 """
-The function below, with the help of the Ohlc method from plotly
-graphs objects, plot the open, high, low and close of a currency pair(exchange)
-If Ohlc is not set to True, the function will return the first five row of the
-dataframe. Because of the high number of unique currency on the right, start and end
-was implemented to help slice the number of visuals to display.
-E.g if you select USD >> USD/x. There are more than 15 currency for x, thus you may want
-to display just a few to save memory and reduce running time.
+The function below, with the help of the Ohlc method from Plotly graphs objects, plot the open, high, low and 
+close of a currency pair(exchange) If Ohlc is not set to True, the function will return the first five row of    
+the data frame. Because of the high number of unique currencies on the 
+right, start and end was implemented to help slice the number of visuals to display.E.g if you select USD >> USD/x. 
+There are more than 15 currencies for 
+x, thus you may want to display just a few to save memory and reduce running time.
 """
 def plot_viz(currencyA, ohlc=False, start = 0, end=1):
     data = slug_split()
@@ -78,9 +76,9 @@ def plot_viz(currencyA, ohlc=False, start = 0, end=1):
 
 """
 The function below processes currency A inserted by the user.
-It filters the main data for that currerncy, and display the possible currency B
-that you can choose for the selected currency A. You can preview the dataframe
-by setting prev to True, then use index 0 to display it.
+It filters the main data for that currency, and displays the possible 
+currency B that you can choose for the selected currency A. You can preview 
+the data frame by setting prev to True, then using index 0 to display it.
 """
 def select_curA(prev=False):
     data = slug_split()
@@ -95,9 +93,10 @@ def select_curA(prev=False):
         return A_data
 
 """
-The function below forms a dictionary of dataframe for currency A selected above, with all posible 
-currency B. It prints the shape of the dataframe if shape is set to True. x is used to
-control the number of dataframe shapes it display.
+The function below forms a dictionary of data frame for currency A 
+selected above, with all possible currency B. It prints the shape of 
+the data frame if the shape is set o True. x is used to control the 
+number of data frame shapes it displays.
 """
 def posB_dfs(A_data, shape=False, x=5):
     Alist=[]
@@ -115,8 +114,8 @@ start_date = 0
 end_date = 0
 
 """
-The function below takes currency B from the user and filter the dictionary from above
-and return the dataframe for the currency pair.
+The function below takes currency B from the user and filters the dictionary 
+from above and return the data frame for the currency pair.
 """
 def select_curB(curA, prev=False):
     cur_B=input()
@@ -136,13 +135,13 @@ def select_curB(curA, prev=False):
         return A_B
 
 """
-The function below is used to resample the dataframe to weekly, showing the mean.
-It also print out the days with no entries. Because of the data leakage, only close
-variable will be used for prediction, thus missing value for only close variable was handled.
+The function below is used to resample the data frame to weekly, showing the mean.
+It also prints out the days with no entries. Because of the data leakage, only the close
+variable will be used for prediction, thus missing value for only the close variable was handled.
 """
 def upsample(A_B):
     xch = A_B['slug'].unique()
-    #upsample to weekly records using mean
+    #downsample to weekly records using mean
     weekly = A_B.resample('W', label='left',closed = 'left').mean()
     print(pd.date_range(start=start_date, end=end_date,freq="W").difference(weekly.index))
     #use ffil to fill null values
@@ -159,7 +158,7 @@ With closing, kde, and auto_corr set to True, it will plot the closing value,
 density plot and auto correlation plot for the close feature.
 """
 cur_name = ''
-# Plot all features to check if any independant features are present
+# Plot all features to check if any independent features are present
 def weekly_plot(week_data, closing=False, kde=False, auto_corr=False):
     weekly = week_data[0]
     global cur_name
@@ -188,7 +187,7 @@ def weekly_plot(week_data, closing=False, kde=False, auto_corr=False):
         
     if kde == True:
         rcParams['figure.figsize'] = 10, 6
-        #Analyse the KDE plot of the time series to checks for shape, spread, modes and ouliers
+        # Analyse the KDE plot of the time series to check for shape, spread, modes and outliers
         df_close.plot(kind='kde')
         plt.title('Close price density plot')
         plt.show()
@@ -227,7 +226,7 @@ def test_stationarity(timeseries):
     print("Results of dickey fuller test")
     adft = adfuller(timeseries,autolag='AIC')
     # output for dft will give us without defining what the values are.
-    #hence we manually write what values does it explains using a for loop
+    # hence we manually write what values it explains using a for loop
     output = pd.Series(adft[0:4],index=['Test Statistics','p-value','No. of lags used','Number of observations used'])
     for key,values in adft[4].items():
         output['critical value (%s)'%key] =  values
@@ -263,8 +262,7 @@ def conv_to_statn(df_close):
     return df_log
 
 """
-The function below splits the data and plot the visual. It also returns the train
-and test data.
+The function below splits the data and plots the visual. It also returns the train and test data.
 """
 def train_test_split(df_log):
     train_data, test_data = df_log[3:int(len(df_log)*0.9)], df_log[int(len(df_log)*0.9):]
@@ -281,7 +279,7 @@ def train_test_split(df_log):
 
 """
 The function below takes in the train data and prints the autoARIMA summary.
-It also plot the diagnostics of the model.
+It also plots the diagnostics of the model.
 """
 p = 0
 d = 0
@@ -308,7 +306,7 @@ def aut_arima(train_data):
     
 """
 The function below takes in the train and test data which is used in the ARIMA model
-for forecasting. It also prints out the model Summary and display the data plot. 
+for forecasting. It also prints out the model Summary and displays the data plot. 
 It prints out the model evaluation at the end.
 """
 A_MAPE = 0
@@ -351,7 +349,7 @@ def arima(train_data, test_data, plot=False):
 
 """
 The function below takes in the train and test data which is used in the prophet model
-for forecasting. It plots the splitting and prediction chart the display the model evaluation 
+for forecasting. It plots the splitting and prediction chart the displays the model evaluation
 at the end.
 """
 def prophet_model(train_data, test_data, plot=False):
