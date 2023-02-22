@@ -53,6 +53,7 @@ The parameter daily_seasonality is a boolean that is set to True to include a da
 Similarly weekly_seasonality is also set to true to capture any weekly seasonaloitys that might be present.
 
 Considering USD/INR, below is the result from ARIMA and Prophet Model
+
 |ARIMA||PROPHET||
 |---|---|---|---| 
 |MSE|0.0011339080488869154|MSE| 0.0009422223295071617
