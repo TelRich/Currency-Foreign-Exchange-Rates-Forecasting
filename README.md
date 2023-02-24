@@ -2,12 +2,14 @@
 
 ---
 
-<center><h1>Currency Foreign Exchange Rates</h1></center>
+<center><h1>Currency Foreign Exchange Rates Prediction</h1></center>
 
 ### [Click to view Full Project](https://nbviewer.org/github/TelRich/Currency-Foreign-Exchange-Rates/blob/main/Exchange_Rates_Prediction.ipynb?flush_cache=True)
 ### [Click to view Data Visualization](https://nbviewer.org/github/TelRich/Currency-Foreign-Exchange-Rates/blob/main/data_viz.ipynb)
 ### [Click to view Project Dashboard](https://swathi0710-forexprediction-timeseries-dqrtk2.streamlit.app/)
 ---
+
+### Some Exchange Time Series
 
 ![](image/newplot.png)
 ![](image/newplot1.png)
@@ -41,25 +43,24 @@ The data was splitted into 90/10 because of the few observations we have as a re
 
 Two models were used in this project to forecast the closing price, ARIMA and PROPHET MODEL.
 
-#### ARIMA MODEL
-An ARIMA model is created by using pmdarima module. 
-The order parameter expects a tuple of three integers representing the number of autoregressive (p), differencing (d), and moving average (q) terms to include in the model.
-These parameters are extracted from the auto-arima model in the previous step by using the order() function.
+> #### ARIMA MODEL
+> An ARIMA model is created by using pmdarima module. 
+>The order parameter expects a tuple of three integers representing the number of autoregressive (p), differencing (d), and moving average (q) terms to include in the model.
+> These parameters are extracted from the auto-arima model in the previous step by using the order() function.
 
-#### PROPHET MODEL
-The second model we are considering is the open source prophet model provided by Facebook. 
-The seasonality mode parameter controls how seasonality is modeled in the time series data. We have chosen additive by assuming seasonal effects are additive to the trend component.
-The parameter daily_seasonality is a boolean that is set to True to include a daily seasonality component, which means that patterns that repeat on a daily basis will be captured.
-Similarly weekly_seasonality is also set to true to capture any weekly seasonaloitys that might be present.
+> #### PROPHET MODEL
+> The second model we are considering is the open source prophet model provided by Facebook. 
+> The seasonality mode parameter controls how seasonality is modeled in the time series data. We have chosen additive by assuming seasonal effects are additive to the trend component.
+> The parameter daily_seasonality is a boolean that is set to True to include a daily seasonality component, which means that patterns that repeat on a daily basis will be captured.
+> Similarly weekly_seasonality is also set to true to capture any weekly seasonaloitys that might be present.
 
-Considering USD/INR, below is the result from ARIMA and Prophet Model
+### Some Currency Evaluation
+![](image/summary.jpg)
 
-|ARIMA||PROPHET||
-|---|---|---|---| 
-|MSE|0.0011339080488869154|MSE| 0.0009422223295071617
-|MAE| 0.029262777070431054|MAE| 0.019481331837450377
-|RMSE| 0.033673551177250606|RMSE| 0.03069564023615018
-|MAPE| 0.0067861488558217395|MAPE| 0.0045100611420522295
+### Live Exchange Comparison
+Using the deployed [Project Dashboard](https://swathi0710-forexprediction-timeseries-dqrtk2.streamlit.app/) below are the live excahnge price and model prediction for the written date
+
+![](image/live_xchang.jpg)
 
 ## Limitations
 1. Our Dataset does not contain data for the past 2 years which may have helped with more accurate predictions.
