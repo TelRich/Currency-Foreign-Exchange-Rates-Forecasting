@@ -7,6 +7,7 @@
 ### [Click to view Full Project](https://nbviewer.org/github/TelRich/Currency-Foreign-Exchange-Rates/blob/main/Exchange_Rates_Prediction.ipynb?flush_cache=True)
 ### [Click to view Data Visualization](https://nbviewer.org/github/TelRich/Currency-Foreign-Exchange-Rates/blob/main/data_viz.ipynb)
 ### [Click to view Project Dashboard](https://swathi0710-forexprediction-timeseries-dqrtk2.streamlit.app/)
+### [Click to view Project Article](https://medium.com/@rshm.jp07/currency-foreign-exchange-rate-prediction-4630a118de0c)
 ---
 
 ### Some Exchange Time Series
