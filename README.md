@@ -2,7 +2,7 @@
 
 ---
 
-<center><h1>Currency Foreign Exchange Rates Prediction</h1></center>
+<center><h1>Currency Foreign Exchange Rates Forecasting</h1></center>
 
 ### [Click to view Full Project](https://nbviewer.org/github/TelRich/Currency-Foreign-Exchange-Rates/blob/main/Exchange_Rates_Prediction.ipynb?flush_cache=True)
 ### [Click to view Data Visualization](https://nbviewer.org/github/TelRich/Currency-Foreign-Exchange-Rates/blob/main/data_viz.ipynb)
